@@ -6,10 +6,12 @@ namespace Calculator
         private string storedValue = "";
         private string currentOperator = "";
         private double result = 0.0;
+        private readonly ButtonLayoutManager _buttonLayoutManager;
 
         public Calculator()
         {
             InitializeComponent();
+            _buttonLayoutManager = new ButtonLayoutManager(this);
         }
 
         // Botões numéricos (0-9)   
@@ -129,7 +131,7 @@ namespace Calculator
         // Colocar o valor de PI no display
         private void btnPi_Click(object sender, EventArgs e)
         {
-            currentInput += Math.PI.ToString();
+            currentInput = Math.PI.ToString();
             UpdateScreen();
         }
 
@@ -159,16 +161,20 @@ namespace Calculator
         {
             if (radioStandard.Checked)
             {
-                resizeNumberButtons(new Size(70, 70));
-                repositionStandardMode();
+                _buttonLayoutManager.ResizeNumberButtons(_buttonLayoutManager.StandardButtonSize);
+                _buttonLayoutManager.RepositionStandardMode();
+
                 btnSen.Visible = false;
                 btnCos.Visible = false;
                 btnXpowerY.Visible = false;
                 btnCalcX.Visible = false;
-                btnPi.Visible = false;  
+                btnPi.Visible = false;
 
-                btnDot.Location = new Point(89, 347);
-                btnPlusMinus.Location = new Point(165, 347);
+                var btnDot = Controls.Find("btnDot", true).FirstOrDefault() as Button;
+                var btnPlusMinus = Controls.Find("btnPlusMinus", true).FirstOrDefault() as Button;
+
+                if (btnDot != null) btnDot.Location = new Point(89, 347);
+                if (btnPlusMinus != null) btnPlusMinus.Location = new Point(165, 347);
             }
         }
 
@@ -176,112 +182,14 @@ namespace Calculator
         {
             if (radioScientific.Checked)
             {
-                resizeNumberButtons(new Size(50, 50));
-                repositionScientificMode();
+                _buttonLayoutManager.ResizeNumberButtons(_buttonLayoutManager.ScientificButtonSize);
+                _buttonLayoutManager.RepositionScientificMode();
+
                 btnSen.Visible = true;
                 btnCos.Visible = true;
                 btnXpowerY.Visible = true;
                 btnCalcX.Visible = true;
                 btnPi.Visible = true;
-
-                btnDot.Location = new Point(num0.Right + 6, num2.Bottom + 6);
-                btnPlusMinus.Location = new Point(btnDot.Right + 6, num3.Bottom + 6);
-            }
-        }
-
-        // Método para mudar o tamanho dos botões de acordo com o modo (Padrão ou Cientifico)
-        private void resizeNumberButtons(Size newSize)
-        {
-            for (int i = 0; i <= 9; i++)
-            {
-                if (Controls.Find($"num{i}", true).FirstOrDefault() is Button numButton)
-                {
-                    numButton.Size = newSize;
-                }
-            }
-            btnDot.Size = newSize;
-            btnPlusMinus.Size = newSize;
-        }
-
-        // Função para reposicionar os botões no modo padrão
-        private void repositionStandardMode()
-        {
-            int startX = 13;
-            int startY = 119;
-            int buttonSpacing = 6;
-
-            for (int i = 1; i <= 9; i++)
-            {
-                if (Controls.Find($"num{i}", true).FirstOrDefault() is Button numButton)
-                {
-                    int row = (9 - i) / 3; // Linhas vão de baixo pra cima (7,8,9 -> 4,5,6 -> 1,2,3)
-                    int col = (i - 1) % 3; // Colunas 0,1,2
-                    numButton.Location = new Point(
-                        startX + col * (numButton.Width + buttonSpacing),
-                        startY + row * (numButton.Height + buttonSpacing)
-                    );
-                }
-            }
-
-            // Posição do botão 0 abaixo do botão 1 (centralizado)
-            if (Controls.Find("num0", true).FirstOrDefault() is Button zeroButton)
-            {
-                // Achar o botão 0 abaixo do botão 1
-                if (Controls.Find("num1", true).FirstOrDefault() is Button oneButton)
-                {
-                    zeroButton.Location = new Point(
-                        oneButton.Left,
-                        oneButton.Bottom + buttonSpacing
-                    );
-                }
-                else  // Voltar se o botão 1 não for encontrado
-                {
-                    zeroButton.Location = new Point(
-                        startX + (zeroButton.Width + buttonSpacing),  // Centralizar posição
-                        startY + 3 * (zeroButton.Height + buttonSpacing)  // Abaixo da 3ª linha
-                    );
-                }
-            }
-        }
-
-        // Função para reposicionar os botões no modo científico
-        private void repositionScientificMode()
-        {
-            int startX = 13;
-            int startY = 119;
-            int buttonSpacing = 6;
-
-            for (int i = 1; i <= 9; i++)
-            {
-                if (Controls.Find($"num{i}", true).FirstOrDefault() is Button numButton)
-                {
-                    int row = (9 - i) / 3; // Linhas vão de baixo pra cima (7,8,9 -> 4,5,6 -> 1,2,3)
-                    int col = (i - 1) % 3; // Colunas 0,1,2
-                    numButton.Location = new Point(
-                        startX + col * (numButton.Width + buttonSpacing),
-                        startY + row * (numButton.Height + buttonSpacing)
-                    );
-                }
-            }
-
-            // Posição do botão 0 abaixo do botão 1 (centralizado)
-            if (Controls.Find("num0", true).FirstOrDefault() is Button zeroButton)
-            {
-                // Achar o botão 0 abaixo do botão 1
-                if (Controls.Find("num1", true).FirstOrDefault() is Button oneButton)
-                {
-                    zeroButton.Location = new Point(
-                        oneButton.Left,
-                        oneButton.Bottom + buttonSpacing
-                    );
-                }
-                else  // Voltar se o botão 1 não for encontrado
-                {
-                    zeroButton.Location = new Point(
-                        startX + (zeroButton.Width + buttonSpacing),  // Centralizar posição
-                        startY + 3 * (zeroButton.Height + buttonSpacing)  // Abaixo da 3ª linha
-                    );
-                }
             }
         }
     }
